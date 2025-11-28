@@ -2496,4 +2496,74 @@
 /* PA_TIM functions end */
 #define PA44_WKUP_PIN20         SF32LB_PINMUX(PA, 44U, 8U, 0U, 0U)
 
+/*
+ * SA port pins (SAIO_D0 - SAIO_D12)
+ * These are dedicated pins for MPI1 (PSRAM/NOR Flash) interface
+ */
+
+/* SA00 (SAIO_D0) */
+#define SA00_ANALOG             SF32LB_PINMUX(SA, 0U, 0U, 0U, 0U)
+#define SA00_MPI1_DM            SF32LB_PINMUX(SA, 0U, 1U, 0U, 0U)
+#define SA00_MPI1_DIO2          SF32LB_PINMUX(SA, 0U, 5U, 0U, 0U)
+
+/* SA01 (SAIO_D1) */
+#define SA01_MPI1_DIO0          SF32LB_PINMUX(SA, 1U, 1U, 0U, 0U)
+#define SA01_MPI1_CS            SF32LB_PINMUX(SA, 1U, 5U, 0U, 0U)
+
+/* SA02 (SAIO_D2) */
+#define SA02_MPI1_DIO1          SF32LB_PINMUX(SA, 2U, 1U, 0U, 0U)
+#define SA02_MPI1_DIO1_ALT      SF32LB_PINMUX(SA, 2U, 5U, 0U, 0U)
+
+/* SA03 (SAIO_D3) */
+#define SA03_MPI1_DIO2          SF32LB_PINMUX(SA, 3U, 1U, 0U, 0U)
+#define SA03_MPI1_DIO2_ALT      SF32LB_PINMUX(SA, 3U, 5U, 0U, 0U)
+
+/* SA04 (SAIO_D4) */
+#define SA04_MPI1_DIO3          SF32LB_PINMUX(SA, 4U, 1U, 0U, 0U)
+#define SA04_MPI1_CS            SF32LB_PINMUX(SA, 4U, 5U, 0U, 0U)
+
+/* SA05 (SAIO_D5) */
+#define SA05_MPI1_CS            SF32LB_PINMUX(SA, 5U, 1U, 0U, 0U)
+#define SA05_MPI1_DIO4          SF32LB_PINMUX(SA, 5U, 3U, 0U, 0U)
+#define SA05_MPI1_DIO0          SF32LB_PINMUX(SA, 5U, 4U, 0U, 0U)
+
+/* SA06 (SAIO_D6) */
+#define SA06_ANALOG             SF32LB_PINMUX(SA, 6U, 0U, 0U, 0U)
+#define SA06_MPI1_CLKB          SF32LB_PINMUX(SA, 6U, 1U, 0U, 0U)
+#define SA06_MPI1_DIO5          SF32LB_PINMUX(SA, 6U, 3U, 0U, 0U)
+#define SA06_MPI1_DIO2          SF32LB_PINMUX(SA, 6U, 4U, 0U, 0U)
+
+/* SA07 (SAIO_D7) */
+#define SA07_MPI1_CLK           SF32LB_PINMUX(SA, 7U, 1U, 0U, 0U)
+#define SA07_MPI1_DIO6          SF32LB_PINMUX(SA, 7U, 3U, 0U, 0U)
+#define SA07_MPI1_DIO1          SF32LB_PINMUX(SA, 7U, 4U, 0U, 0U)
+#define SA07_MPI1_DIO0          SF32LB_PINMUX(SA, 7U, 5U, 0U, 0U)
+
+/* SA08 (SAIO_D8) */
+#define SA08_MPI1_DIO4          SF32LB_PINMUX(SA, 8U, 1U, 0U, 0U)
+#define SA08_MPI1_DIO7          SF32LB_PINMUX(SA, 8U, 3U, 0U, 0U)
+#define SA08_MPI1_CS            SF32LB_PINMUX(SA, 8U, 4U, 0U, 0U)
+#define SA08_MPI1_DIO3          SF32LB_PINMUX(SA, 8U, 5U, 0U, 0U)
+
+/* SA09 (SAIO_D9) */
+#define SA09_MPI1_DIO5          SF32LB_PINMUX(SA, 9U, 1U, 0U, 0U)
+#define SA09_MPI1_DQSDM         SF32LB_PINMUX(SA, 9U, 3U, 0U, 0U)
+#define SA09_MPI1_CLK           SF32LB_PINMUX(SA, 9U, 4U, 0U, 0U)
+#define SA09_MPI1_CLK_ALT       SF32LB_PINMUX(SA, 9U, 5U, 0U, 0U)
+
+/* SA10 (SAIO_D10) */
+#define SA10_MPI1_DIO6          SF32LB_PINMUX(SA, 10U, 1U, 0U, 0U)
+#define SA10_MPI1_CLK           SF32LB_PINMUX(SA, 10U, 3U, 0U, 0U)
+#define SA10_MPI1_DIO3          SF32LB_PINMUX(SA, 10U, 4U, 0U, 0U)
+#define SA10_MPI1_DIO3_ALT      SF32LB_PINMUX(SA, 10U, 5U, 0U, 0U)
+
+/* SA11 (SAIO_D11) */
+#define SA11_MPI1_DIO7          SF32LB_PINMUX(SA, 11U, 1U, 0U, 0U)
+#define SA11_MPI1_CS            SF32LB_PINMUX(SA, 11U, 3U, 0U, 0U)
+#define SA11_MPI1_DIO0          SF32LB_PINMUX(SA, 11U, 5U, 0U, 0U)
+
+/* SA12 (SAIO_D12) */
+#define SA12_MPI1_DQS           SF32LB_PINMUX(SA, 12U, 1U, 0U, 0U)
+#define SA12_MPI1_DQSDM         SF32LB_PINMUX(SA, 12U, 2U, 0U, 0U)
+
 #endif /* _INCLUDE_ZEPHYR_DT_BINDINGS_PINCTRL_SF32LB52X_PINCTRL_H_ */

@@ -26,4 +26,5 @@ zephyr_library_sources_ifdef(CONFIG_REGULATOR_PCA9420 regulator_pca9420.c)
 zephyr_library_sources_ifdef(CONFIG_REGULATOR_PCA9422 regulator_pca9422.c)
 zephyr_library_sources_ifdef(CONFIG_REGULATOR_PF1550 regulator_pf1550.c)
 zephyr_library_sources_ifdef(CONFIG_REGULATOR_RPI_PICO regulator_rpi_pico.c)
+zephyr_library_sources_ifdef(CONFIG_REGULATOR_SF32LB regulator_sf32lb.c)
 # zephyr-keep-sorted-stop

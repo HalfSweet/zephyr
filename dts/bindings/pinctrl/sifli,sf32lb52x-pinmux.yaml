@@ -133,3 +133,10 @@ child-binding:
           - 4
           - 8
           - 12
+
+      sifli,analog:
+        type: boolean
+        description: |
+          Configure the pin as analog mode. When set, the pin function select
+          is set to analog (FSEL=15), and pull-enable and input-enable are
+          disabled. This is typically used for power supply pins or ADC inputs.
