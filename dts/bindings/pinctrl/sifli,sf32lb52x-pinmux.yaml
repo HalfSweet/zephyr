@@ -1,4 +1,5 @@
 # Copyright (c) 2025 Core Devices LLC
+# Copyright (c) 2025 SiFli Technologies(Nanjing) Co., Ltd
 # SPDX-License-Identifier: Apache-2.0
 
 description: |
@@ -58,11 +59,14 @@ description: |
     - bias-pull-up: Enable pull-up resistor.
     - bias-pull-down: Enable pull-down resistor.
     - input-enable: Enable input buffer.
-    - input-schmitt-enable: Enable Schmitt trigger.
-    - slew-rate: 0 (slow, default), 1 (fast).
-    - drive-strength: 2, 4 (default), 8, or 12 mA.
+    - drive-strength: 0, 1, 2 (default), or 3. Maps to {DS0, DS1} register bits
+      where DS0 is the high bit. Default is 2 (DS0=1, DS1=0).
+      Note: PA39-PA42 only have DS1 bit (no DS0), so drive-strength must be
+      0 or 1 for these pins (default 0), where 0=4mA and 1=20mA.
 
     Note that drive and bias options are mutually exclusive.
+    Note: SR (slew-rate) and IS (input-schmitt) registers are preserved
+    from hardware defaults and cannot be changed via pinctrl.
 
     To link pin configurations with a device, use a pinctrl-N property for some
     number N, like this example you could place in your board's DTS file:
@@ -127,9 +131,16 @@ child-binding:
           - 1
 
       drive-strength:
-        default: 4
+        default: 2
         enum:
+          - 0
+          - 1
           - 2
-          - 4
-          - 8
-          - 12
+          - 3
+
+      sifli,analog:
+        type: boolean
+        description: |
+          Configure the pin as analog mode. When set, the pin function select
+          is set to analog (FSEL=15), and pull-enable and input-enable are
+          disabled. This is typically used for power supply pins or ADC inputs.
