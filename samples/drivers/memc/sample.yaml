@@ -19,3 +19,7 @@ tests:
     integration_platforms:
       - apollo3p_evb
       - apollo510_evb
+  sample.drivers.memc.sf32lb:
+    filter: dt_compat_enabled("sifli,sf32lb-mpi-opi-psram")
+    integration_platforms:
+      - sf32lb52_devkit_lcd
