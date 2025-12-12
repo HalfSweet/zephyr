@@ -23,6 +23,7 @@ LOG_MODULE_REGISTER(spi_sf32lb, CONFIG_SPI_LOG_LEVEL);
 #define SPI_STATUS       offsetof(SPI_TypeDef, STATUS)
 #define SPI_CLK_CTRL     offsetof(SPI_TypeDef, CLK_CTRL)
 #define SPI_TRIWIRE_CTRL offsetof(SPI_TypeDef, TRIWIRE_CTRL)
+#define SPI_FIFO_CTRL    offsetof(SPI_TypeDef, FIFO_CTRL)
 
 #define SPI_FLAG_FRLVL  (SPI_STATUS_RFL_Msk | SPI_STATUS_RNE_Msk)
 #define SPI_FRLVL_EMPTY (SPI_STATUS_RFL_Msk)
@@ -202,6 +203,30 @@ static void spi_sf32lb_flush_rx_fifo(const struct device *dev)
 	}
 }
 
+static void spi_sf32lb_reset_fifos(const struct device *dev)
+{
+	const struct spi_sf32lb_config *cfg = dev->config;
+
+	/* Pulse both TX and RX FIFO reset bits to clear residual data */
+	sys_set_bits(cfg->base + SPI_FIFO_CTRL, SPI_FIFO_CTRL_TSRE | SPI_FIFO_CTRL_RSRE);
+	sys_clear_bits(cfg->base + SPI_FIFO_CTRL, SPI_FIFO_CTRL_TSRE | SPI_FIFO_CTRL_RSRE);
+}
+
+static int spi_sf32lb_wait_not_busy(const struct device *dev)
+{
+	const struct spi_sf32lb_config *cfg = dev->config;
+	uint32_t deadline = k_uptime_get_32() + CONFIG_SPI_COMPLETION_TIMEOUT_TOLERANCE;
+
+	while (sys_test_bit(cfg->base + SPI_STATUS, SPI_STATUS_BSY_Pos)) {
+		if (k_uptime_get_32() > deadline) {
+			return -ETIMEDOUT;
+		}
+		k_busy_wait(5);
+	}
+
+	return 0;
+}
+
 static int spi_sf32lb_frame_exchange(const struct device *dev)
 {
 	struct spi_sf32lb_data *data = dev->data;
@@ -331,6 +356,14 @@ static int spi_sf32lb_transceive(const struct device *dev, const struct spi_conf
 	spi_context_buffers_setup(&data->ctx, tx_bufs, rx_bufs, dfs);
 
 	spi_context_cs_control(&data->ctx, true);
+
+	/* Restart peripheral to avoid residue between back-to-back transfers
+	 * when the same spi_config pointer is reused (concurrent test case).
+	 */
+	sys_clear_bit(cfg->base + SPI_TOP_CTRL, SPI_TOP_CTRL_SSE_Pos);
+	sys_set_bit(cfg->base + SPI_TOP_CTRL, SPI_TOP_CTRL_SSE_Pos);
+
+	spi_sf32lb_reset_fifos(dev);
 	spi_sf32lb_flush_rx_fifo(dev);
 	sys_set_bits(cfg->base + SPI_STATUS, SPI_STATUS_ROR | SPI_STATUS_TUR | SPI_STATUS_TINT);
 	do {
@@ -339,6 +372,10 @@ static int spi_sf32lb_transceive(const struct device *dev, const struct spi_conf
 			break;
 		}
 	} while (spi_sf32lb_transfer_ongoing(data));
+
+	if (!ret) {
+		ret = spi_sf32lb_wait_not_busy(dev);
+	}
 
 	spi_context_cs_control(&data->ctx, false);
 
