@@ -243,20 +243,21 @@ static int spi_sf32lb_frame_exchange(const struct device *dev)
 		}
 	}
 	if (spi_context_rx_on(ctx)) {
+		bool tx_has_data = spi_context_tx_buf_on(ctx);
+
 		if (spi_context_rx_buf_on(ctx)) {
-			if (!spi_context_tx_buf_on(ctx)) {
-				if (sys_test_bit(cfg->base + SPI_STATUS, SPI_STATUS_TNF_Pos)) {
-					if (SPI_WORD_SIZE_GET(ctx->config->operation) == 8) {
-						sys_write8(0x00, cfg->base + SPI_DATA);
-					} else if (SPI_WORD_SIZE_GET(ctx->config->operation) == 16) {
-						sys_write32(0x00000000U, cfg->base + SPI_DATA);
-					} else {
-						LOG_ERR("Unsupported word size: %u",
-							SPI_WORD_SIZE_GET(ctx->config->operation));
-						return -ENOTSUP;
-					}
+			if (!tx_has_data && sys_test_bit(cfg->base + SPI_STATUS, SPI_STATUS_TNF_Pos)) {
+				if (SPI_WORD_SIZE_GET(ctx->config->operation) == 8) {
+					sys_write8(0x00, cfg->base + SPI_DATA);
+				} else if (SPI_WORD_SIZE_GET(ctx->config->operation) == 16) {
+					sys_write32(0x00000000U, cfg->base + SPI_DATA);
+				} else {
+					LOG_ERR("Unsupported word size: %u",
+						SPI_WORD_SIZE_GET(ctx->config->operation));
+					return -ENOTSUP;
 				}
 			}
+
 			if (sys_test_bit(cfg->base + SPI_STATUS, SPI_STATUS_RNE_Pos)) {
 				if (SPI_WORD_SIZE_GET(ctx->config->operation) == 8) {
 					rx_frame = sys_read8(cfg->base + SPI_DATA);
@@ -273,12 +274,31 @@ static int spi_sf32lb_frame_exchange(const struct device *dev)
 				}
 			}
 		} else {
-			if (SPI_WORD_SIZE_GET(ctx->config->operation) == 8) {
-				rx_frame = sys_read32(cfg->base + SPI_DATA);
-				spi_context_update_rx(ctx, 1, 1);
-			} else if (SPI_WORD_SIZE_GET(ctx->config->operation) == 16) {
-				rx_frame = sys_read32(cfg->base + SPI_DATA);
-				spi_context_update_rx(ctx, 2, 1);
+			/* Discard RX frames for NULL buffers to keep FIFO aligned */
+			if (!tx_has_data && sys_test_bit(cfg->base + SPI_STATUS, SPI_STATUS_TNF_Pos)) {
+				if (SPI_WORD_SIZE_GET(ctx->config->operation) == 8) {
+					sys_write8(0x00, cfg->base + SPI_DATA);
+				} else if (SPI_WORD_SIZE_GET(ctx->config->operation) == 16) {
+					sys_write32(0x00000000U, cfg->base + SPI_DATA);
+				} else {
+					LOG_ERR("Unsupported word size: %u",
+						SPI_WORD_SIZE_GET(ctx->config->operation));
+					return -ENOTSUP;
+				}
+			}
+
+			if (sys_test_bit(cfg->base + SPI_STATUS, SPI_STATUS_RNE_Pos)) {
+				if (SPI_WORD_SIZE_GET(ctx->config->operation) == 8) {
+					(void)sys_read8(cfg->base + SPI_DATA);
+					spi_context_update_rx(ctx, 1, 1);
+				} else if (SPI_WORD_SIZE_GET(ctx->config->operation) == 16) {
+					(void)sys_read32(cfg->base + SPI_DATA);
+					spi_context_update_rx(ctx, 2, 1);
+				} else {
+					LOG_ERR("Unsupported word size: %u",
+						SPI_WORD_SIZE_GET(ctx->config->operation));
+					return -ENOTSUP;
+				}
 			}
 		}
 	}
